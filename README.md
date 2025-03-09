@@ -1,2 +1,2 @@
 # autoVB
-Automatiza tarefas comuns no PCI/SALF/DBQA/SEVEB
+Automatiza tarefas comuns no PCI/SALF/DBQA/SEVEB.

@@ -12,6 +12,9 @@ name_cols <- function(cols){
   sapply(cols, function(x) set_names(x, nm = substr(x, 1, nchar(x) - 1)))
 }
 
+drive_deauth()
+drive_auth()
+
 drive_download(
   "https://docs.google.com/spreadsheets/d/1hY_9oqwzM6LWlcKg5JhJmYbqN-yMJGOI/edit", overwrite = TRUE, path = "www/vb_tmp.xlsx"
   )

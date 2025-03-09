@@ -12,6 +12,7 @@ name_cols <- function(cols){
   sapply(cols, function(x) set_names(x, nm = substr(x, 1, nchar(x) - 1)))
 }
 
+
 drive_auth(email = FALSE)
 
 drive_download(

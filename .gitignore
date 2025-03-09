@@ -2,6 +2,10 @@
 .Rhistory
 .Rapp.history
 
+# Sensitive files
+vb_tmp.xlsx
+0.pdf
+
 # Session Data files
 .RData
 .RDataTmp

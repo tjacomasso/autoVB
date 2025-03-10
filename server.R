@@ -1,5 +1,4 @@
 library(shiny)
-# library(tidyverse)
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -13,14 +12,19 @@ name_cols <- function(cols){
 }
 
 
-drive_auth(email = FALSE)
-
-drive_download(
+if (is_interactive()) {
+  drive_download(
   "https://docs.google.com/spreadsheets/d/1hY_9oqwzM6LWlcKg5JhJmYbqN-yMJGOI/edit", overwrite = TRUE, path = "www/vb_tmp.xlsx"
   )
-
-registros_vb <- read_xlsx("www/vb_tmp.xlsx") |> 
-  filter(Pesquisa == "Sangue", !is.na(`sg km`))
+  registros_vb <- read_xlsx("www/vb_tmp.xlsx") |> 
+    filter(Pesquisa == "Sangue", !is.na(`sg km`))
+} else {
+  registros_vb <- reactive({
+    req(input$regs)
+    read_xlsx(input$regs$datapath) |> 
+      filter(Pesquisa == "Sangue", !is.na(`sg km`))
+    })
+}
 
 registros <- registros_vb  |>
   select("Ordem VB", "Caso Sirsaelp", "Nº Laudo", "Pesquisa", `sg km`:`sgh forense`) |>
@@ -52,7 +56,7 @@ function(input, output, session) {
         label = "Selecione o(s) caso(s):",
         choices = unique(registros$`Ordem VB`),
         multiple = TRUE,
-        size = 20
+        size = 10
       )
     )
   )

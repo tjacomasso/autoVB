@@ -9,6 +9,7 @@ fluidPage(
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
+          fileInput("regs", "Selecione o arquivo de registros corrente", accept = ".xlsx"),
           uiOutput(
             outputId = "lista_vbs"
           ),

@@ -44,12 +44,17 @@ function(input, output, session) {
     tagList(
       selectizeInput(
         inputId = "vb",
-        label = "Selecione o(s) caso(s):",
+        label = "3. Selecione o(s) caso(s) e clique em 'Gerar etiquetas':",
         choices = unique(registros()$`Ordem VB`),
         multiple = TRUE,
         size = 10
       )
     )
+  })
+  
+  observe({
+    req(input$vb)
+    updateActionButton(inputId = "vai", disabled = FALSE)
   })
   
   observeEvent(eventExpr = input$vai, handlerExpr = {

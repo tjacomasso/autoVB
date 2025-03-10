@@ -11,34 +11,11 @@ name_cols <- function(cols){
   sapply(cols, function(x) set_names(x, nm = substr(x, 1, nchar(x) - 1)))
 }
 
-
-if (is_interactive()) {
-  drive_download(
-  "https://docs.google.com/spreadsheets/d/1hY_9oqwzM6LWlcKg5JhJmYbqN-yMJGOI/edit", overwrite = TRUE, path = "www/vb_tmp.xlsx"
-  )
-  registros <- read_xlsx("www/vb_tmp.xlsx") |> 
-    filter(Pesquisa == "Sangue", !is.na(`sg km`)) |>
-    select("Ordem VB", "Caso Sirsaelp", "Nº Laudo", "Pesquisa", `sg km`:`sgh forense`) |>
-    mutate(across(`sg km`:`sgh forense`, function(x) str_split(x, pattern = ",")),
-           across(`sg km`:`sgh forense`, name_cols)) |>
-    unnest_wider(`sg km`:`sgh forense`, names_sep = "_") |>
-    pivot_longer(
-      `sg km_1`:`sgh forense_4`,
-      names_to = "teste_item",
-      values_to = "resultado",
-      values_transform = function(x) substr(x, nchar(x), nchar(x))
-    ) |> 
-    separate_wider_delim(teste_item, delim = "_", names = c("teste_item_1", "item")) |> 
-    filter(!is.na(resultado)) |> 
-    pivot_wider(names_from = teste_item_1, values_from = resultado) |> 
-    mutate(across(`sg km`:`sgh forense`, function(x) str_replace(x, item, ""))) |> 
-    mutate(resultado_ic = case_when(`sgh clínico` == "p" | `sgh forense` == "p" ~ "IC +",
-                                    TRUE ~ "IC -"),
-           resultado_km = ifelse(`sg km` == "p", "KM +", "KM -"),
-           conclusao = ifelse(resultado_ic == "IC +", "SgH +", "SgH -"))
-} else {
+# Define server logic required to draw a histogram
+function(input, output, session) {
+  
   registros <- reactive({
-    req(input$regs)
+    
     read_xlsx(input$regs$datapath) |> 
       filter(Pesquisa == "Sangue", !is.na(`sg km`))  |>
       select("Ordem VB", "Caso Sirsaelp", "Nº Laudo", "Pesquisa", `sg km`:`sgh forense`) |>
@@ -59,28 +36,26 @@ if (is_interactive()) {
                                       TRUE ~ "IC -"),
              resultado_km = ifelse(`sg km` == "p", "KM +", "KM -"),
              conclusao = ifelse(resultado_ic == "IC +", "SgH +", "SgH -"))
-    })
-}
-
-
-# Define server logic required to draw a histogram
-function(input, output, session) {
+  })
   
-  output$lista_vbs <- renderUI(
+  
+  output$lista_vbs <- renderUI({
+    req(input$regs)
     tagList(
       selectizeInput(
         inputId = "vb",
         label = "Selecione o(s) caso(s):",
-        choices = unique(registros$`Ordem VB`),
+        choices = unique(registros()$`Ordem VB`),
         multiple = TRUE,
         size = 10
       )
     )
-  )
+  })
   
   observeEvent(eventExpr = input$vai, handlerExpr = {
+    req(registros())
     
-  registros <- registros |> filter(`Ordem VB` %in% input$vb)
+  registros <- registros() |> filter(`Ordem VB` %in% input$vb)
     
     pdf(
       file = "www/0.pdf",

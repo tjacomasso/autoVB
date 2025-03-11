@@ -131,6 +131,8 @@ function(input, output, session) {
       
     })
     
+    output$how_to_print <- renderText("<b>4. Imprimir o .pdf gerado utilizando a ETIQUETADORA. A impressora deve estar configurada para imprimir as etiquetas do Sirsaelp.</b>")
+    
   })
   
   

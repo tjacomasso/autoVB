@@ -4,7 +4,7 @@ library(shiny) # carrega o pacote Shiny
 fluidPage(
 
     # Application title
-    titlePanel("autoSEVEB - Etiquetas para as contraprovas das pesquisas de sangue"),
+    titlePanel("autoVB - Etiquetas para as contraprovas das pesquisas de sangue"),
 
     # Sidebar with a slider input for number of bins
     sidebarLayout(
@@ -19,13 +19,15 @@ fluidPage(
           uiOutput(
             outputId = "lista_vbs"
           ),
-          actionButton(inputId = "vai", label = "Gerar etiquetas", disabled = TRUE)
+          actionButton(inputId = "vai", label = "Gerar etiquetas", disabled = TRUE),
+          br(),
+          br(),
+          htmlOutput("how_to_print")
         ),
 
         # Show a plot of the generated distribution
         mainPanel(
-          uiOutput("pdfview"),
-          textOutput("distPlot")
+          uiOutput("pdfview")
         )
     )
 )

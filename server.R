@@ -99,7 +99,7 @@ function(input, output, session) {
         gp = gpar(fontsize = 15, col = "black")
       )
       grid.text(
-        paste(registros$resultado_km[i], "|", registros$resultado_ic),
+        paste(registros$resultado_km[i], "|", registros$resultado_ic[i]),
         x = 0.5,
         y = 0.5,
         hjust = 0,

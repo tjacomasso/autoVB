@@ -4,7 +4,6 @@ library(tidyr)
 library(stringr)
 library(rlang)
 library(readxl)
-library(googledrive)
 library(grid)
 
 name_cols <- function(cols){

@@ -16,7 +16,7 @@ function(input, output, session) {
   registros <- reactive({
     
     read_xlsx(input$regs$datapath) |> 
-      filter(Pesquisa == "Sangue", !is.na(`sg km`))  |>
+      filter(str_detect(Pesquisa, "[Ss]angue"), !is.na(`sg km`))  |>
       select("Ordem VB", "Caso Sirsaelp", "Nº Laudo", "Pesquisa", `sg km`:`sgh forense`) |>
       mutate(across(`sg km`:`sgh forense`, function(x) str_split(x, pattern = ",")),
              across(`sg km`:`sgh forense`, name_cols)) |>

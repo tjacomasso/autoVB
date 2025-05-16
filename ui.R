@@ -9,7 +9,7 @@ fluidPage(
     # Sidebar with a slider input for number of bins
     sidebarLayout(
         sidebarPanel(
-          HTML("<b>1. Atualize a planilha de registros do VB (final do número do laudo e resultados do KM e IC);</b>"),
+          HTML("<b>1. Atualize a planilha de registros do VB (final do número do laudo e resultados do KM e do IC);</b>"),
           br(),
           br(),
           fileInput("regs", "2. Selecione o arquivo de registros (.xlsx):", accept = ".xlsx", buttonLabel = "Buscar..."),
@@ -25,7 +25,7 @@ fluidPage(
           htmlOutput("how_to_print")
         ),
 
-        # Show a plot of the generated distribution
+        # Mostra o .pdf gerado com as etiquetas
         mainPanel(
           uiOutput("pdfview")
         )

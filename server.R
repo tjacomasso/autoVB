@@ -22,7 +22,7 @@ function(input, output, session) {
              across(`sg km`:`sgh forense`, name_cols)) |>
       unnest_wider(`sg km`:`sgh forense`, names_sep = "_") |>
       pivot_longer(
-        `sg km_1`:`sgh forense_4`,
+        `sg km_1`:last_col(),
         names_to = "teste_item",
         values_to = "resultado",
         values_transform = function(x) substr(x, nchar(x), nchar(x))

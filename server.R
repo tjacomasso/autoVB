@@ -46,7 +46,7 @@ function(input, output, session) {
         label = "3. Selecione o(s) caso(s) e clique em 'Gerar etiquetas':",
         choices = unique(registros()$`Ordem VB`),
         multiple = TRUE,
-        size = 10
+        size = 10 
       )
     )
   })
@@ -65,7 +65,8 @@ function(input, output, session) {
       file = "www/0.pdf",
       width = 2.55906,
       height = 0.984252,
-      onefile = TRUE
+      onefile = TRUE, 
+      title = 'Contraprovas VB'
     )
     
     for (i in seq_along(registros$`Ordem VB`)) {

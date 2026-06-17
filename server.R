@@ -139,7 +139,11 @@ function(input, output, session) {
     req(registros())
     req(input$vb)
     
-    resultados <- registros() |> filter(`Ordem VB` %in% input$vb) |> DT::datatable()
+    resultados <- 
+      registros() |> 
+      filter(`Ordem VB` %in% input$vb) |> 
+      select(-Pesquisa) |> 
+      DT::datatable()
   
     output$results_table <- 
       DT::renderDT(

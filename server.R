@@ -59,7 +59,7 @@ function(input, output, session) {
   observeEvent(eventExpr = input$vai, handlerExpr = {
     req(registros())
     
-  registros <- registros() |> filter(`Ordem VB` %in% input$vb)
+    registros <- registros() |> filter(`Ordem VB` %in% input$vb)
     
     pdf(
       file = "www/0.pdf",
@@ -127,7 +127,7 @@ function(input, output, session) {
     
     output$pdfview <- renderUI({
       
-      tags$iframe(style="height:600px; width:100%", src="0.pdf")
+      tags$iframe(style="height:100%; width:100%", src="0.pdf")
       
     })
     
@@ -135,5 +135,15 @@ function(input, output, session) {
     
   })
   
+  observeEvent(eventExpr = input$vai, handlerExpr = {
+    req(registros())
+    req(input$vb)
+    
+    resultados <- registros() |> filter(`Ordem VB` %in% input$vb) |> DT::datatable()
   
+    output$results_table <- 
+      DT::renderDT(
+        resultados
+      )
+  })
 }

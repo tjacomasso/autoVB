@@ -1,6 +1,5 @@
 library(shiny) # carrega o pacote Shiny
 library(bslib)
-library(shinymanager)
 
 # Define UI for application that draws a histogram
 page_fillable(
@@ -19,7 +18,7 @@ page_fillable(
       layout_sidebar(
         
         sidebar = sidebar(
-          width = "30%",
+          width = "25%",
           
           HTML("<b>1. Atualize a planilha de registros do VB (final do número do laudo e resultados do KM e do IC);</b>"),
           

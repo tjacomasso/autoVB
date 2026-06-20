@@ -41,7 +41,7 @@ page_fillable(
             uiOutput("pdfview")
           ), 
           card(
-            DT::DTOutput("results_table")
+            reactableOutput("results_table")
           )
         )
         

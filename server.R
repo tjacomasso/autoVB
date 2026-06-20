@@ -5,6 +5,7 @@ library(stringr)
 library(rlang)
 library(readxl)
 library(grid)
+library(reactable)
 
 name_cols <- function(cols){
   sapply(cols, function(x) set_names(x, nm = substr(x, 1, nchar(x) - 1)))
@@ -142,11 +143,22 @@ function(input, output, session) {
     resultados <- 
       registros() |> 
       filter(`Ordem VB` %in% input$vb) |> 
-      select(-Pesquisa) |> 
-      DT::datatable()
+      mutate(laudo = paste(`Caso Sirsaelp`, `Nº Laudo`, sep = "."),
+             caso = paste(`Ordem VB`, laudo, sep = " - LP ")) |> 
+      select(-Pesquisa, -`Caso Sirsaelp`, -`Nº Laudo`, -`Ordem VB`, -laudo) |> 
+      reactable(
+        # server = TRUE,
+        groupBy = c("caso"),
+        columns = list(
+          caso = colDef(grouped = JS("function(cellInfo) {
+            return cellInfo.value
+          }")),
+          item = colDef(aggregate = "count", format = list(aggregated = colFormat(prefix = "No de itens: ")))
+        )
+      )
   
     output$results_table <- 
-      DT::renderDT(
+      renderReactable(
         resultados
       )
   })

@@ -1,5 +1,6 @@
 library(shiny) # carrega o pacote Shiny
 library(bslib)
+library(reactable)
 
 # Define UI for application that draws a histogram
 page_fillable(
@@ -41,7 +42,7 @@ page_fillable(
             uiOutput("pdfview")
           ), 
           card(
-            DT::DTOutput("results_table")
+            reactableOutput("results_table")
           )
         )
         

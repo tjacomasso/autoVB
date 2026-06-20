@@ -142,24 +142,35 @@ function(input, output, session) {
     
     resultados <- 
       registros() |> 
-      filter(`Ordem VB` %in% input$vb) |> 
-      mutate(laudo = paste(`Caso Sirsaelp`, `Nº Laudo`, sep = "."),
-             caso = paste(`Ordem VB`, laudo, sep = " - LP ")) |> 
-      select(-Pesquisa, -`Caso Sirsaelp`, -`Nº Laudo`, -`Ordem VB`, -laudo) |> 
-      reactable(
-        # server = TRUE,
-        groupBy = c("caso"),
-        columns = list(
-          caso = colDef(grouped = JS("function(cellInfo) {
-            return cellInfo.value
-          }")),
-          item = colDef(aggregate = "count", format = list(aggregated = colFormat(prefix = "No de itens: ")))
-        )
-      )
-  
+      filter(`Ordem VB` %in% input$vb)
+    
+    casos <- 
+      resultados[, c("Ordem VB", "Caso Sirsaelp", "Nº Laudo")] |> 
+      unique()
+    
+    
+      # reactable(
+      #   # server = TRUE,
+      #   groupBy = c("caso"),
+      #   columns = list(
+      #     caso = colDef(grouped = JS("function(cellInfo) {
+      #       return cellInfo.value
+      #     }")),
+    #     item = colDef(aggregate = "count", format = list(aggregated = colFormat(prefix = "No de itens: ")))
+    #   )
+    # )
+    
     output$results_table <- 
       renderReactable(
-        resultados
+        casos |> 
+          reactable(
+            details = function(indice){
+              resultados_caso <- resultados[resultados$`Ordem VB` == casos$`Ordem VB`[indice], c("item", "sg km", "sgh clínico", "sgh forense", "conclusao")]
+              
+              htmltools::div(style = "padding: 1rem",
+                             reactable(resultados_caso, outlined = TRUE))
+            }
+          )
       )
   })
 }

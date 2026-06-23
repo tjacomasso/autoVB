@@ -5,6 +5,7 @@ library(stringr)
 library(rlang)
 library(readxl)
 library(grid)
+library(reactable)
 
 name_cols <- function(cols){
   sapply(cols, function(x) set_names(x, nm = substr(x, 1, nchar(x) - 1)))
@@ -59,7 +60,7 @@ function(input, output, session) {
   observeEvent(eventExpr = input$vai, handlerExpr = {
     req(registros())
     
-  registros <- registros() |> filter(`Ordem VB` %in% input$vb)
+    registros <- registros() |> filter(`Ordem VB` %in% input$vb)
     
     pdf(
       file = "www/0.pdf",
@@ -127,7 +128,7 @@ function(input, output, session) {
     
     output$pdfview <- renderUI({
       
-      tags$iframe(style="height:600px; width:100%", src="0.pdf")
+      tags$iframe(style="height:100%; width:100%", src="0.pdf")
       
     })
     
@@ -135,5 +136,41 @@ function(input, output, session) {
     
   })
   
-  
+  observeEvent(eventExpr = input$vai, handlerExpr = {
+    req(registros())
+    req(input$vb)
+    
+    resultados <- 
+      registros() |> 
+      filter(`Ordem VB` %in% input$vb)
+    
+    casos <- 
+      resultados[, c("Ordem VB", "Caso Sirsaelp", "Nº Laudo")] |> 
+      unique()
+    
+    
+      # reactable(
+      #   # server = TRUE,
+      #   groupBy = c("caso"),
+      #   columns = list(
+      #     caso = colDef(grouped = JS("function(cellInfo) {
+      #       return cellInfo.value
+      #     }")),
+    #     item = colDef(aggregate = "count", format = list(aggregated = colFormat(prefix = "No de itens: ")))
+    #   )
+    # )
+    
+    output$results_table <- 
+      renderReactable(
+        casos |> 
+          reactable(
+            details = function(indice){
+              resultados_caso <- resultados[resultados$`Ordem VB` == casos$`Ordem VB`[indice], c("item", "sg km", "sgh clínico", "sgh forense", "conclusao")]
+              
+              htmltools::div(style = "padding: 1rem",
+                             reactable(resultados_caso, outlined = TRUE))
+            }
+          )
+      )
+  })
 }

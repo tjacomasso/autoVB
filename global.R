@@ -1,11 +1,11 @@
 library(httr2)
 library(readxl)
 
-GOOGLE_CLIENT_ID     <- "SEU_CLIENT_ID.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET <- "SEU_CLIENT_SECRET"
-REDIRECT_URI         <- "https://seuapp.shinyapps.io/meuapp/"
-DOMINIO_PERMITIDO    <- "suainstituicao.com.br"
-DRIVE_FILE_ID        <- "ID_DO_ARQUIVO_NO_DRIVE"
+GOOGLE_CLIENT_ID     <- Sys.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET <- Sys.getenv("OAUTH_CLIENT_SECRET")
+REDIRECT_URI         <- "http://127.0.0.1:8100"
+DOMINIO_PERMITIDO    <- "policiacientifica.sc.gov.br"
+DRIVE_FILE_ID        <- "1O-Grg8Tey_dxfC4aG-Rg4X3AjvzXvauA"
 SCOPES               <- "https://www.googleapis.com/auth/drive.readonly openid email"
 
 AUTH_URL  <- "https://accounts.google.com/o/oauth2/v2/auth"
@@ -13,7 +13,7 @@ TOKEN_URL <- "https://oauth2.googleapis.com/token"
 
 oauth_client <- httr2::oauth_client(
   id = GOOGLE_CLIENT_ID, secret = GOOGLE_CLIENT_SECRET,
-  token_url = TOKEN_URL, name = "meu-app-institucional"
+  token_url = TOKEN_URL, name = "autovb_shinyapp_client"
 )
 
 build_auth_url <- function(state) {
@@ -24,7 +24,7 @@ build_auth_url <- function(state) {
       redirect_uri          = REDIRECT_URI,
       response_type         = "code",
       scope                 = SCOPES,
-      access_type           = "online",
+      access_type           = "offline",
       include_granted_scopes = "true",
       prompt                = "select_account",
       state                 = state
@@ -83,4 +83,9 @@ download_drive_file <- function(access_token, file_id) {
                    class = "drive_sem_permissao")
     }
   )
+}
+
+# Função para extrair os nomes e os resultados das amostras
+name_cols <- function(cols){
+  sapply(cols, function(x) set_names(x, nm = substr(x, 1, nchar(x) - 1)))
 }

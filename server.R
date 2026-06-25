@@ -18,23 +18,46 @@ function(input, output, session) {
     access_token   = NULL,
     email          = NULL,
     autorizado     = NULL,
-    erro_drive     = NULL
+    erro_drive     = NULL,
+    ultimo_code    = NULL  # evita reprocessar o mesmo code mais de uma vez
   )
 
   # Captura o "code" devolvido pelo Google na própria URL do app
   observe({
     query <- shiny::parseQueryString(session$clientData$url_search)
 
-    if (!is.null(query$code) && is.null(rv$access_token)) {
+    # Importante: NÃO depende de rv$access_token ser NULL — assim, mesmo já
+    # havendo um usuário logado, um novo "code" (vindo do botão "Trocar de
+    # usuário") ainda é processado. O controle de duplicidade é feito
+    # comparando com o último code já processado.
+    if (!is.null(query$code) && !identical(query$code, rv$ultimo_code)) {
+      rv$ultimo_code <- query$code
 
       # (validação simples do state — em produção, persista o state gerado
       #  por sessão em vez de comparar só dentro da mesma sessão reativa)
       token_resp <- tryCatch(
         exchange_code_for_token(query$code),
-        error = function(e) NULL
+        httr2_http_400 = function(e) {
+          corpo <- tryCatch(httr2::resp_body_json(e$resp), error = function(e2) NULL)
+          message("Erro 400 do Google ao trocar code por token: ",
+                  jsonlite::toJSON(corpo, auto_unbox = TRUE))
+          NULL
+        },
+        function(e) {
+          message("Erro ao trocar code por token: ", conditionMessage(e))
+          NULL
+        }
       )
 
       if (!is.null(token_resp)) {
+        # Limpa o estado do usuário anterior antes de aplicar o novo,
+        # relevante na troca de usuário (evita qualquer dado antigo
+        # ficando visível mesmo que por um instante)
+        rv$access_token <- NULL
+        rv$email         <- NULL
+        rv$autorizado    <- NULL
+        rv$erro_drive    <- NULL
+        
         rv$access_token <- token_resp$access_token
         rv$email        <- get_user_email(rv$access_token)
         rv$autorizado   <- endsWith(rv$email, paste0("@", DOMINIO_PERMITIDO))
@@ -81,8 +104,23 @@ function(input, output, session) {
     )
 
   })
+  
+  # Link de troca de usuário: reaproveita o fluxo de login normal. O
+  # parâmetro prompt=select_account (já definido em build_auth_url) força o
+  # Google a exibir o seletor de contas, em vez de logar automaticamente de
+  # novo com a conta atual.
+  botao_trocar_usuario <- reactive({
+    url_trocar <- build_auth_url(
+      paste0(sample(c(letters, 0:9), 24, replace = TRUE), collapse = "")
+    )
+    tags$a(
+      href = url_trocar,
+      style = "margin-left: 12px; font-size: 0.8em; color: #888; text-decoration: underline;",
+      "trocar"
+    )
+  })
 
-
+  
   output$lista_vbs <- renderUI({
     if (is.null(rv$access_token)) {
       url_login <- build_auth_url(oauth_state)
@@ -100,10 +138,15 @@ function(input, output, session) {
     
     if (!isTRUE(rv$autorizado)) {
       return(
-        h4(paste0(
-          "Acesso negado para ", rv$email,
-          ". Use sua conta @", DOMINIO_PERMITIDO, "."
-        ))
+        tagList(
+          h4(
+            paste0(
+              "Acesso negado para ", rv$email,
+              ". Use sua conta @", DOMINIO_PERMITIDO, "."
+            )
+          ),
+          botao_trocar_usuario()
+        )
       )
     }
     
@@ -116,6 +159,7 @@ function(input, output, session) {
       return(
         tagList(
           HTML(paste("Bem-vindo,", rv$email)),
+          botao_trocar_usuario(),
           div(class = "alert alert-warning", rv$erro_drive)
         )
       )
@@ -123,6 +167,7 @@ function(input, output, session) {
     
     tagList(
       HTML(paste("Acessando como", rv$email)),
+      botao_trocar_usuario(),
       selectizeInput(
         inputId = "vb",
         label = "2. Selecione o(s) caso(s) e clique em 'Gerar etiquetas':",

@@ -4,6 +4,7 @@ library(readxl)
 GOOGLE_CLIENT_ID     <- Sys.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET <- Sys.getenv("OAUTH_CLIENT_SECRET")
 REDIRECT_URI         <- "http://127.0.0.1:8100"
+# REDIRECT_URI         <- "https://tjacomasso-autovb.share.connect.posit.cloud"
 DOMINIO_PERMITIDO    <- "policiacientifica.sc.gov.br"
 DRIVE_FILE_ID        <- "1O-Grg8Tey_dxfC4aG-Rg4X3AjvzXvauA"
 SCOPES               <- "https://www.googleapis.com/auth/drive.readonly openid email"
